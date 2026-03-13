@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CodeKids — Learn HTML, CSS & JavaScript</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f0f4ff;--surface:#fff;--ink:#1e1e3f;--muted:#6b7280;--rule:#e2e8f0;
+  --html:#f97316;--html-lt:#fff3e8;
+  --css:#0ea5e9;--css-lt:#e8f6ff;
+  --js:#eab308;--js-lt:#fefce8;
+  --success:#10b981;--locked:#cbd5e1;--locked-bg:#f1f5f9;
+  --radius:14px;--shadow:0 4px 24px rgba(30,30,63,.10);--shadow-lg:0 8px 40px rgba(30,30,63,.16)
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;overflow-x:hidden}
+
+/* SYNC STATUS */
+.sync-dot{width:8px;height:8px;border-radius:50%;background:#94a3b8;display:inline-block;margin-right:4px;transition:background .3s}
+.sync-dot.syncing{background:#f59e0b;animation:pulse .8s infinite}
+.sync-dot.synced{background:var(--success)}
+.sync-dot.error{background:#ef4444}
+.sync-label{font-size:.72rem;font-weight:700;color:var(--muted)}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:2px solid var(--rule);padding:.75rem 1.5rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(30,30,63,.07);flex-wrap:wrap;gap:.5rem}
+.logo{font-size:1.3rem;font-weight:900;color:var(--ink);display:flex;align-items:center;gap:.4rem}
+.logo span{color:var(--html)}
+.topbar-right{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.stage-pills{display:flex;gap:.5rem;flex-wrap:wrap}
+.stage-pill{display:flex;align-items:center;gap:.35rem;padding:.3rem .8rem;border-radius:999px;font-size:.78rem;font-weight:700;border:2px solid transparent;cursor:pointer;transition:all .2s;user-select:none}
+.stage-pill.html{background:var(--html-lt);color:var(--html);border-color:var(--html)}
+.stage-pill.css{background:var(--css-lt);color:var(--css);border-color:var(--css)}
+.stage-pill.js{background:var(--js-lt);color:var(--js);border-color:var(--js)}
+.stage-pill.locked{background:var(--locked-bg);color:var(--locked);border-color:var(--locked);cursor:not-allowed}
+.stage-pill.active-pill{box-shadow:0 0 0 3px rgba(30,30,63,.2);transform:scale(1.05)}
+.xp-bar-wrap{display:flex;align-items:center;gap:.6rem;font-size:.82rem;font-weight:700}
+.xp-bar-bg{width:100px;height:10px;background:var(--rule);border-radius:999px;overflow:hidden}
+.xp-bar-fill{height:100%;background:linear-gradient(90deg,#f97316,#eab308);border-radius:999px;transition:width .5s ease}
+
+/* WELCOME */
+#screen-welcome{min-height:calc(100vh - 60px);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:2rem 1rem;background:linear-gradient(160deg,#e8f0ff 0%,#fdf4ff 50%,#fff8e8 100%)}
+.hero-emoji{font-size:5rem;margin-bottom:1rem;animation:bounce 2s infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+#screen-welcome h1{font-size:clamp(2rem,6vw,3.5rem);font-weight:900;line-height:1.1;margin-bottom:.8rem}
+#screen-welcome h1 em{font-style:normal;color:var(--html)}
+#screen-welcome p.sub{font-size:1.1rem;color:var(--muted);max-width:480px;margin:0 auto 2rem;font-weight:600}
+.name-row{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-bottom:1.5rem}
+.name-input{font-family:'Nunito',sans-serif;font-size:1rem;font-weight:700;padding:.65rem 1.1rem;border:2.5px solid var(--rule);border-radius:var(--radius);outline:none;background:#fff;width:260px;transition:border-color .2s}
+.name-input:focus{border-color:var(--html)}
+.btn-start{font-family:'Nunito',sans-serif;font-size:1.05rem;font-weight:800;background:var(--html);color:#fff;border:none;border-radius:var(--radius);padding:.65rem 2rem;cursor:pointer;box-shadow:0 4px 16px rgba(249,115,22,.35);transition:transform .15s,box-shadow .15s}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(249,115,22,.45)}
+.btn-start:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.stage-overview{display:flex;gap:1.2rem;flex-wrap:wrap;justify-content:center;margin-top:2.5rem}
+.overview-card{background:#fff;border-radius:var(--radius);padding:1.2rem 1.5rem;width:180px;border:2.5px solid var(--rule);text-align:left;box-shadow:var(--shadow)}
+.overview-card .oc-icon{font-size:2rem;margin-bottom:.4rem}
+.overview-card h3{font-size:.95rem;font-weight:800;margin-bottom:.2rem}
+.overview-card p{font-size:.78rem;color:var(--muted);font-weight:600;line-height:1.4}
+.overview-card.html-card{border-color:var(--html)}.overview-card.css-card{border-color:var(--css)}.overview-card.js-card{border-color:var(--js)}
+
+/* STAGE SCREEN */
+.stage-screen{display:none;padding:1.5rem 1rem 4rem;max-width:1100px;margin:0 auto}
+.stage-screen.active{display:block;animation:fadeSlide .35s ease}
+@keyframes fadeSlide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.stage-header{display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;padding:1.2rem 1.5rem;border-radius:var(--radius);border:2.5px solid}
+.stage-header.html{background:var(--html-lt);border-color:var(--html)}.stage-header.css{background:var(--css-lt);border-color:var(--css)}.stage-header.js{background:var(--js-lt);border-color:var(--js)}
+.stage-header .sh-icon{font-size:2.5rem}
+.stage-header h2{font-size:1.5rem;font-weight:900}
+.stage-header p{font-size:.9rem;color:var(--muted);font-weight:600}
+.progress-row{display:flex;gap:.5rem;align-items:center;margin-left:auto;flex-shrink:0}
+.step-dot{width:14px;height:14px;border-radius:50%;background:var(--rule);border:2px solid #ccc;transition:all .3s}
+.step-dot.done{background:var(--success);border-color:var(--success)}
+.step-dot.active-dot{background:#fff;border-color:var(--ink);border-width:3px}
+
+/* LESSON CARD */
+.lesson-card{background:var(--surface);border-radius:var(--radius);border:2px solid var(--rule);box-shadow:var(--shadow);margin-bottom:1.5rem;overflow:hidden}
+.lesson-card-head{padding:.9rem 1.3rem;font-weight:800;font-size:1rem;display:flex;align-items:center;gap:.5rem;border-bottom:2px solid var(--rule)}
+.lesson-card-head.html{background:var(--html-lt);color:var(--html)}.lesson-card-head.css{background:var(--css-lt);color:var(--css)}.lesson-card-head.js{background:var(--js-lt);color:var(--js)}
+.lesson-card-body{padding:1.2rem 1.4rem}
+.lesson-card-body p{font-size:.95rem;color:#374151;line-height:1.7;margin-bottom:.8rem;font-weight:600}
+.lesson-card-body p:last-child{margin-bottom:0}
+
+/* CODE */
+.code-example{background:#1e1e3f;border-radius:10px;padding:1.1rem 1.3rem;font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.75;overflow-x:auto;margin:.8rem 0;border:2px solid #2d2d5e;position:relative;color:#a8b4d8}
+.code-example .lbl{position:absolute;top:.5rem;right:.8rem;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#4a4a7a;font-family:'Nunito',sans-serif;font-weight:700}
+.ct{color:#f97316}.ca{color:#7dd3fc}.cv{color:#fbbf24}.cp{color:#f97316}.cpv{color:#7dd3fc}.cs{color:#a3e635}.ck{color:#c084fc}.cf{color:#38bdf8}.cm{color:#4a4a7a;font-style:italic}.cstr{color:#86efac}.cnum{color:#fb7185}
+
+/* EDITOR */
+.editor-wrap{background:var(--surface);border-radius:var(--radius);border:2px solid var(--rule);box-shadow:var(--shadow);margin-bottom:1.5rem;overflow:hidden}
+.editor-toolbar{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;background:#1e1e3f;border-bottom:2px solid #2d2d5e}
+.editor-toolbar .dot{width:12px;height:12px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+.editor-filename{font-family:'Fira Code',monospace;font-size:.75rem;color:#6b7db3;margin-left:.3rem}
+.editor-layout{display:grid;grid-template-columns:1fr 1fr;min-height:280px}
+@media(max-width:640px){.editor-layout{grid-template-columns:1fr}}
+.editor-pane{border-right:2px solid var(--rule);display:flex;flex-direction:column}
+.editor-pane-label,.preview-pane-label{padding:.4rem .9rem;font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:#f8fafc;border-bottom:1px solid var(--rule)}
+.code-textarea{font-family:'Fira Code',monospace;font-size:.82rem;line-height:1.7;padding:.9rem 1rem;border:none;outline:none;resize:none;flex:1;background:#1e1e3f;color:#a8b4d8;tab-size:2;min-height:240px}
+.preview-pane{display:flex;flex-direction:column}
+.preview-iframe{flex:1;border:none;min-height:240px;background:#fff}
+.editor-actions{padding:.7rem 1rem;display:flex;gap:.6rem;align-items:center;border-top:2px solid var(--rule);background:#f8fafc;flex-wrap:wrap}
+.btn-run{font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;background:var(--ink);color:#fff;border:none;border-radius:8px;padding:.45rem 1.1rem;cursor:pointer;transition:background .2s}
+.btn-run:hover{background:#2d2d5f}
+.btn-reset{font-family:'Nunito',sans-serif;font-weight:700;font-size:.82rem;background:transparent;color:var(--muted);border:2px solid var(--rule);border-radius:8px;padding:.4rem .9rem;cursor:pointer;transition:all .2s}
+.btn-reset:hover{border-color:var(--muted);color:var(--ink)}
+.run-hint{font-size:.78rem;color:var(--muted);font-weight:600;margin-left:auto}
+
+/* TASKS */
+.task-card{background:var(--surface);border-radius:var(--radius);border:2px solid var(--rule);box-shadow:var(--shadow);margin-bottom:1.5rem;overflow:hidden}
+.task-card-head{padding:.8rem 1.2rem;font-weight:800;font-size:.95rem;display:flex;align-items:center;gap:.5rem;border-bottom:2px solid var(--rule);background:#f8fafc}
+.task-list{padding:1rem 1.3rem}
+.task-item{display:flex;align-items:flex-start;gap:.75rem;padding:.55rem .5rem;border-bottom:1px solid var(--rule);cursor:pointer;transition:background .15s;border-radius:6px}
+.task-item:last-child{border-bottom:none}
+.task-item:hover{background:#f8fafc}
+.task-checkbox{width:22px;height:22px;flex-shrink:0;border:2.5px solid var(--rule);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.8rem;transition:all .2s;margin-top:1px;background:#fff}
+.task-item.done .task-checkbox{background:var(--success);border-color:var(--success);color:#fff}
+.task-text{font-size:.92rem;font-weight:600;line-height:1.5;color:#374151}
+.task-item.done .task-text{text-decoration:line-through;color:var(--muted)}
+code.inline{font-family:'Fira Code',monospace;background:#f1f5f9;border:1px solid var(--rule);border-radius:4px;padding:.05rem .35rem;font-size:.82rem;color:var(--ink)}
+
+/* QUIZ */
+.quiz-card{background:var(--surface);border-radius:var(--radius);border:2px solid var(--rule);box-shadow:var(--shadow);margin-bottom:1.5rem;overflow:hidden}
+.quiz-card-head{padding:.8rem 1.2rem;font-weight:800;font-size:.95rem;display:flex;align-items:center;gap:.5rem;border-bottom:2px solid var(--rule);background:#f8fafc}
+.quiz-body{padding:1.2rem 1.4rem}
+.quiz-q{font-size:.97rem;font-weight:700;margin-bottom:.9rem}
+.quiz-options{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem}
+.quiz-option{display:flex;align-items:center;gap:.7rem;padding:.65rem 1rem;border:2.5px solid var(--rule);border-radius:10px;cursor:pointer;font-size:.9rem;font-weight:600;transition:all .2s;background:#fff;user-select:none}
+.quiz-option:hover:not(.disabled){border-color:var(--ink);background:#f8fafc}
+.quiz-option.selected{border-color:var(--ink);background:#f0f4ff}
+.quiz-option.correct{border-color:var(--success);background:#ecfdf5;color:#065f46}
+.quiz-option.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.quiz-option.disabled{pointer-events:none}
+.quiz-opt-dot{width:20px;height:20px;border-radius:50%;border:2.5px solid currentColor;flex-shrink:0}
+.quiz-feedback{display:none;padding:.7rem 1rem;border-radius:8px;font-size:.88rem;font-weight:700;margin-bottom:.8rem}
+.quiz-feedback.show{display:block}
+.quiz-feedback.correct{background:#ecfdf5;color:#065f46;border:2px solid var(--success)}
+.quiz-feedback.wrong{background:#fef2f2;color:#991b1b;border:2px solid #ef4444}
+.btn-check{font-family:'Nunito',sans-serif;font-weight:800;font-size:.88rem;background:var(--ink);color:#fff;border:none;border-radius:8px;padding:.5rem 1.4rem;cursor:pointer}
+.btn-check:disabled{background:var(--locked);cursor:not-allowed}
+
+/* REFLECTION */
+.reflection-card{background:var(--surface);border-radius:var(--radius);border:2px solid var(--rule);box-shadow:var(--shadow);margin-bottom:1.5rem;overflow:hidden}
+.reflection-head{padding:.8rem 1.2rem;font-weight:800;font-size:.95rem;display:flex;align-items:center;gap:.5rem;border-bottom:2px solid var(--rule);background:#f8fafc}
+.reflection-body{padding:1.2rem 1.4rem}
+.reflection-label{font-size:.88rem;font-weight:700;margin-bottom:.5rem;display:block}
+.reflection-textarea{width:100%;min-height:90px;font-family:'Nunito',sans-serif;font-size:.92rem;font-weight:600;color:var(--ink);border:2px solid var(--rule);border-radius:10px;padding:.7rem .9rem;resize:vertical;outline:none;transition:border-color .2s;background:#f8fafc}
+.reflection-textarea:focus{border-color:var(--html);background:#fff}
+.reflection-textarea::placeholder{color:#b0bac9;font-style:italic}
+
+/* COMPLETE ZONE */
+.complete-zone{background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:2.5px dashed var(--success);border-radius:var(--radius);padding:1.5rem;text-align:center;margin-bottom:2rem}
+.complete-zone h3{font-size:1.1rem;font-weight:800;margin-bottom:.4rem}
+.complete-zone p{font-size:.9rem;color:var(--muted);font-weight:600;margin-bottom:.8rem}
+.requirements-list{display:flex;flex-direction:column;gap:.35rem;margin-bottom:.8rem;text-align:left;max-width:360px;margin-left:auto;margin-right:auto}
+.req-item{font-size:.84rem;font-weight:700;display:flex;align-items:center;gap:.5rem;padding:.3rem .6rem;border-radius:7px}
+.req-item.met{color:var(--success);background:#ecfdf5}
+.req-item.unmet{color:#ef4444;background:#fef2f2}
+.btn-complete{font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;background:var(--success);color:#fff;border:none;border-radius:var(--radius);padding:.7rem 2rem;cursor:pointer;box-shadow:0 4px 16px rgba(16,185,129,.3);transition:transform .15s,box-shadow .15s;display:inline-flex;align-items:center;gap:.5rem}
+.btn-complete:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 24px rgba(16,185,129,.4)}
+.btn-complete:disabled{background:var(--locked);box-shadow:none;cursor:not-allowed;transform:none}
+
+/* HINT */
+.hint-box{background:#fffbeb;border:2px solid #fde68a;border-radius:10px;padding:.75rem 1rem;font-size:.87rem;font-weight:600;color:#78350f;margin:.6rem 0;display:flex;gap:.5rem}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(30,30,63,.6);z-index:999;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal-box{background:#fff;border-radius:20px;padding:2.5rem 2rem;text-align:center;max-width:420px;width:90%;box-shadow:var(--shadow-lg);position:relative;overflow:hidden}
+.modal-box h2{font-size:1.5rem;font-weight:900;margin-bottom:.5rem;position:relative;z-index:1}
+.modal-box p{font-size:.95rem;color:var(--muted);font-weight:600;margin-bottom:1.5rem;line-height:1.6;position:relative;z-index:1}
+.modal-emoji{font-size:4rem;margin-bottom:.8rem;display:block;position:relative;z-index:1}
+.modal-xp{display:inline-block;background:var(--js-lt);color:#92400e;border:2px solid var(--js);border-radius:999px;font-weight:800;font-size:.9rem;padding:.3rem .9rem;margin-bottom:1.2rem;position:relative;z-index:1}
+.btn-modal{font-family:'Nunito',sans-serif;font-weight:800;font-size:1rem;border:none;border-radius:var(--radius);padding:.7rem 2rem;cursor:pointer;width:100%;position:relative;z-index:1;transition:transform .15s}
+.btn-modal:hover{transform:translateY(-2px)}
+.btn-modal.css{background:var(--css);color:#fff}.btn-modal.js{background:var(--js);color:var(--ink)}.btn-modal.done{background:var(--success);color:#fff}
+#confetti-canvas{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+
+/* DONE */
+#screen-done{display:none;min-height:calc(100vh - 60px);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:2rem 1rem;background:linear-gradient(160deg,#fdf4ff 0%,#e8f8ff 50%,#f0fdf4 100%)}
+#screen-done.active{display:flex}
+.done-emoji{font-size:6rem;margin-bottom:1rem;animation:popIn .6s cubic-bezier(.34,1.56,.64,1)}
+#screen-done h1{font-size:clamp(2rem,6vw,3rem);font-weight:900;margin-bottom:.6rem}
+#screen-done>p{font-size:1.05rem;color:var(--muted);font-weight:600;max-width:460px;margin:0 auto 2rem}
+.final-badges{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:2rem}
+.final-badge{background:#fff;border-radius:var(--radius);border:2.5px solid;padding:1rem 1.4rem;text-align:center;box-shadow:var(--shadow);animation:popIn .5s cubic-bezier(.34,1.56,.64,1) both}
+.final-badge:nth-child(1){animation-delay:.1s}.final-badge:nth-child(2){animation-delay:.25s}.final-badge:nth-child(3){animation-delay:.4s}
+.final-badge .fb-icon{font-size:2.2rem}.final-badge .fb-name{font-size:.82rem;font-weight:800;margin-top:.3rem}
+.final-badge.html{border-color:var(--html);color:var(--html)}.final-badge.css{border-color:var(--css);color:var(--css)}.final-badge.js{border-color:var(--js);color:#92400e}
+
+/* PARTICLES */
+.particle{position:fixed;pointer-events:none;z-index:9999;border-radius:50%;animation:floatUp 1.8s ease forwards}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-180px) scale(0)}}
+.xp-popup{position:fixed;z-index:9998;font-family:'Nunito',sans-serif;font-weight:900;font-size:1.3rem;color:#eab308;text-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none;animation:xpFloat 1.5s ease forwards}
+@keyframes xpFloat{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-80px) scale(1.3)}}
+@keyframes popIn{from{transform:scale(.5) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+.shake{animation:shake .4s ease}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div class="logo">🚀 <span>Code</span>Kids</div>
+  <div class="topbar-right">
+    <div class="stage-pills">
+      <div class="stage-pill html active-pill" id="pill-html" onclick="tryGoStage('html')">🟠 HTML</div>
+      <div class="stage-pill css locked" id="pill-css">🔵 CSS 🔒</div>
+      <div class="stage-pill js  locked" id="pill-js" >🟡 JS 🔒</div>
+    </div>
+    <div class="xp-bar-wrap">
+      <span>⭐ <span id="xp-count">0</span></span>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" id="xp-bar" style="width:0%"></div></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:.3rem">
+      <div class="sync-dot" id="sync-dot"></div>
+      <span class="sync-label" id="sync-label">Not synced</span>
+    </div>
+  </div>
+</nav>
+
+<!-- WELCOME -->
+<div id="screen-welcome">
+  <div class="hero-emoji">🚀</div>
+  <h1>Learn to Code,<br><em>One Step at a Time!</em></h1>
+  <p class="sub">Master HTML, CSS, and JavaScript — three stages, friendly lessons, live coding editors!</p>
+  <div class="name-row" style="flex-direction:column;align-items:center;gap:.8rem">
+    <div style="display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center">
+      <input class="name-input" id="student-name" type="text" placeholder="✏️ Your full name..." maxlength="40" style="width:220px"/>
+      <input class="name-input" id="student-class" type="text" placeholder="🏫 Your class (e.g. 7B)..." maxlength="20" style="width:200px" onkeydown="if(event.key==='Enter')startJourney()"/>
+    </div>
+    <button class="btn-start" id="btn-start" onclick="startJourney()">Let's Go! 🎉</button>
+  </div>
+  <div id="welcome-status" style="font-size:.82rem;font-weight:700;color:var(--muted);margin-bottom:.5rem"></div>
+  <div class="stage-overview">
+    <div class="overview-card html-card"><div class="oc-icon">🟠</div><h3>Stage 1 — HTML</h3><p>Build the skeleton of webpages.</p></div>
+    <div class="overview-card css-card"><div class="oc-icon">🔵</div><h3>Stage 2 — CSS</h3><p>Add colours, fonts, and layouts.</p></div>
+    <div class="overview-card js-card"><div class="oc-icon">🟡</div><h3>Stage 3 — JS</h3><p>Make pages interactive and alive!</p></div>
+  </div>
+</div>
+
+<!-- STAGE 1 — HTML -->
+<div id="screen-html" class="stage-screen">
+  <div class="stage-header html">
+    <div class="sh-icon">🟠</div>
+    <div><h2>Stage 1 — HTML</h2><p>Build the skeleton of a webpage using tags and elements</p></div>
+    <div class="progress-row" id="html-dots"></div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="lesson-card-head html">📖 Lesson 1 — What is HTML?</div>
+    <div class="lesson-card-body">
+      <p><strong>HTML</strong> stands for <strong>HyperText Markup Language</strong>. It is the <strong>skeleton</strong> of every webpage — it tells the browser what to show: headings, paragraphs, images, and buttons.</p>
+      <p>We use <strong>tags</strong> to mark up content. Most tags have an <strong>opening tag</strong> and a <strong>closing tag</strong>.</p>
+      <div class="code-example"><span class="lbl">HTML</span><span class="cm">&lt;!-- Opening tag      Content      Closing tag --&gt;</span>
+<span class="ct">&lt;h1&gt;</span>Hello, World!<span class="ct">&lt;/h1&gt;</span>
+<span class="ct">&lt;p&gt;</span>I am learning HTML today.<span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;a</span> <span class="ca">href</span>=<span class="cv">"https://example.com"</span><span class="ct">&gt;</span>Click me!<span class="ct">&lt;/a&gt;</span></div>
+      <div class="hint-box">💡 The <code class="inline">/</code> in a closing tag tells the browser "this element ends here". Always close your tags!</div>
+    </div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="editor-filename">index.html</span></div>
+    <div class="editor-layout">
+      <div class="editor-pane"><div class="editor-pane-label">✏️ Your Code</div>
+        <textarea class="code-textarea" id="editor-html-1" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;My First Page&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello! I am learning HTML!&lt;/h1&gt;
+  &lt;p&gt;This is my very first webpage.&lt;/p&gt;
+  &lt;p&gt;I am going to be a great coder! 💪&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+      </div>
+      <div class="preview-pane"><div class="preview-pane-label">👁️ Live Preview</div><iframe class="preview-iframe" id="preview-html-1"></iframe></div>
+    </div>
+    <div class="editor-actions">
+      <button class="btn-run" onclick="runCode('html-1')">▶ Run Code</button>
+      <button class="btn-reset" onclick="resetCode('html-1')">↺ Reset</button>
+      <span class="run-hint">Press Run to see your result →</span>
+    </div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="lesson-card-head html">📖 Lesson 2 — Common HTML Tags</div>
+    <div class="lesson-card-body">
+      <p>Here are the most useful tags you'll need. Each tag has a specific <strong>purpose</strong>!</p>
+      <div class="code-example"><span class="lbl">REFERENCE</span><span class="ct">&lt;h1&gt;</span>Big Title<span class="ct">&lt;/h1&gt;</span>  <span class="ct">&lt;h2&gt;</span>Subtitle<span class="ct">&lt;/h2&gt;</span>
+<span class="ct">&lt;p&gt;</span>Any text content goes here.<span class="ct">&lt;/p&gt;</span>
+<span class="ct">&lt;ul&gt;</span>
+  <span class="ct">&lt;li&gt;</span>Apples 🍎<span class="ct">&lt;/li&gt;</span>
+  <span class="ct">&lt;li&gt;</span>Bananas 🍌<span class="ct">&lt;/li&gt;</span>
+<span class="ct">&lt;/ul&gt;</span>
+<span class="ct">&lt;div&gt;</span>A container for grouping things<span class="ct">&lt;/div&gt;</span>
+<span class="ct">&lt;button&gt;</span>Click Me!<span class="ct">&lt;/button&gt;</span></div>
+    </div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="editor-filename">profile.html — Build your profile card!</span></div>
+    <div class="editor-layout">
+      <div class="editor-pane"><div class="editor-pane-label">✏️ Your Code</div>
+        <textarea class="code-textarea" id="editor-html-2" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;My Profile&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+  &lt;div&gt;
+    &lt;h1&gt;Your Name Here&lt;/h1&gt;
+    &lt;p&gt;Your role, e.g. Student 🎓&lt;/p&gt;
+    &lt;p&gt;Write a short bio about yourself!&lt;/p&gt;
+    &lt;h3&gt;My Hobbies&lt;/h3&gt;
+    &lt;ul&gt;
+      &lt;li&gt;🎮 Gaming&lt;/li&gt;
+      &lt;li&gt;📚 Reading&lt;/li&gt;
+      &lt;li&gt;🎨 Drawing&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;button&gt;Say Hello 👋&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+      </div>
+      <div class="preview-pane"><div class="preview-pane-label">👁️ Live Preview</div><iframe class="preview-iframe" id="preview-html-2"></iframe></div>
+    </div>
+    <div class="editor-actions">
+      <button class="btn-run" onclick="runCode('html-2')">▶ Run Code</button>
+      <button class="btn-reset" onclick="resetCode('html-2')">↺ Reset</button>
+      <span class="run-hint">Edit the card with your own info!</span>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <div class="task-card-head">✅ HTML Tasks — Check off each one as you complete it!</div>
+    <div class="task-list" id="tasks-html">
+      <div class="task-item" onclick="toggleTask(this,'html',0)"><div class="task-checkbox"></div><div class="task-text">Replace <code class="inline">Your Name Here</code> with your actual name</div></div>
+      <div class="task-item" onclick="toggleTask(this,'html',1)"><div class="task-checkbox"></div><div class="task-text">Change the bio paragraph to say something real about yourself</div></div>
+      <div class="task-item" onclick="toggleTask(this,'html',2)"><div class="task-checkbox"></div><div class="task-text">Add a 4th hobby using a new <code class="inline">&lt;li&gt;</code> tag</div></div>
+      <div class="task-item" onclick="toggleTask(this,'html',3)"><div class="task-checkbox"></div><div class="task-text">Add an <code class="inline">&lt;h2&gt;</code> heading that says "About Me"</div></div>
+      <div class="task-item" onclick="toggleTask(this,'html',4)"><div class="task-checkbox"></div><div class="task-text">Run your code and confirm the preview looks correct</div></div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-card-head">🧠 HTML Quiz — Test what you've learned!</div>
+    <div class="quiz-body">
+      <div id="html-q1">
+        <p class="quiz-q">1. What does HTML stand for?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'html-q1')"><div class="quiz-opt-dot"></div>Hyper Transfer Markup Language</div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q1')"><div class="quiz-opt-dot"></div>HyperText Markup Language</div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q1')"><div class="quiz-opt-dot"></div>High Text Making Language</div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q1')"><div class="quiz-opt-dot"></div>Hyper Tool Markup Layout</div>
+        </div>
+        <div class="quiz-feedback" id="fb-html-q1"></div>
+        <button class="btn-check" id="chk-html-q1" onclick="checkQuiz('html-q1',1,'✅ Correct! HTML = HyperText Markup Language!','❌ Not quite. HTML = HyperText Markup Language.')">Check Answer</button>
+      </div>
+      <hr style="margin:1.3rem 0;border-color:var(--rule)">
+      <div id="html-q2">
+        <p class="quiz-q">2. Which tag is used for the <em>biggest</em> heading?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'html-q2')"><div class="quiz-opt-dot"></div><code class="inline">&lt;h6&gt;</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q2')"><div class="quiz-opt-dot"></div><code class="inline">&lt;heading&gt;</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q2')"><div class="quiz-opt-dot"></div><code class="inline">&lt;h1&gt;</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q2')"><div class="quiz-opt-dot"></div><code class="inline">&lt;big&gt;</code></div>
+        </div>
+        <div class="quiz-feedback" id="fb-html-q2"></div>
+        <button class="btn-check" id="chk-html-q2" onclick="checkQuiz('html-q2',2,'✅ Correct! &lt;h1&gt; is the biggest heading.','❌ Not quite. The biggest heading is &lt;h1&gt;.')">Check Answer</button>
+      </div>
+      <hr style="margin:1.3rem 0;border-color:var(--rule)">
+      <div id="html-q3">
+        <p class="quiz-q">3. What tag wraps each item inside a list?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'html-q3')"><div class="quiz-opt-dot"></div><code class="inline">&lt;ul&gt;</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q3')"><div class="quiz-opt-dot"></div><code class="inline">&lt;item&gt;</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q3')"><div class="quiz-opt-dot"></div><code class="inline">&lt;li&gt;</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'html-q3')"><div class="quiz-opt-dot"></div><code class="inline">&lt;list&gt;</code></div>
+        </div>
+        <div class="quiz-feedback" id="fb-html-q3"></div>
+        <button class="btn-check" id="chk-html-q3" onclick="checkQuiz('html-q3',2,'✅ Correct! &lt;li&gt; = list item, inside &lt;ul&gt; or &lt;ol&gt;.','❌ Not quite. Each item needs a &lt;li&gt; tag inside &lt;ul&gt;.')">Check Answer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="reflection-card">
+    <div class="reflection-head">✏️ Reflection</div>
+    <div class="reflection-body">
+      <label class="reflection-label">What is HTML and what does it do for a webpage?</label>
+      <textarea class="reflection-textarea" id="reflect-html-1" placeholder="Write your answer here..." oninput="saveReflection('html',0,this.value)"></textarea>
+      <label class="reflection-label" style="margin-top:.9rem">Which HTML tag did you find most interesting? Why?</label>
+      <textarea class="reflection-textarea" id="reflect-html-2" placeholder="Write your answer here..." oninput="saveReflection('html',1,this.value)"></textarea>
+    </div>
+  </div>
+
+  <div class="complete-zone">
+    <h3>🎉 Ready to move on?</h3>
+    <p>Complete <strong>all tasks</strong>, the <strong>quiz</strong>, and your <strong>reflections</strong> to unlock CSS:</p>
+    <div class="requirements-list" id="reqs-html"></div>
+    <button class="btn-complete" id="btn-complete-html" onclick="completeStage('html')" disabled>Complete Stage 1 &amp; Unlock CSS! 🔓</button>
+  </div>
+</div>
+
+<!-- STAGE 2 — CSS -->
+<div id="screen-css" class="stage-screen">
+  <div class="stage-header css">
+    <div class="sh-icon">🔵</div>
+    <div><h2>Stage 2 — CSS</h2><p>Add colours, fonts, spacing, and beautiful layouts</p></div>
+    <div class="progress-row" id="css-dots"></div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="lesson-card-head css">📖 Lesson 1 — What is CSS?</div>
+    <div class="lesson-card-body">
+      <p><strong>CSS</strong> stands for <strong>Cascading Style Sheets</strong>. If HTML is the skeleton, CSS is the <strong>clothes and skin</strong> — it controls colours, fonts, sizes, and spacing.</p>
+      <div class="code-example"><span class="lbl">CSS SYNTAX</span><span class="cm">/* selector { property: value; } */</span>
+<span class="cs">body</span> { <span class="cp">background-color</span>: <span class="cpv">#f0f4ff</span>; <span class="cp">font-family</span>: <span class="cpv">Arial</span>; }
+<span class="cs">h1</span>   { <span class="cp">color</span>: <span class="cpv">#e63946</span>; <span class="cp">font-size</span>: <span class="cpv">2rem</span>; }
+<span class="cs">.card</span> { <span class="cp">background</span>: <span class="cpv">white</span>; <span class="cp">border-radius</span>: <span class="cpv">12px</span>; <span class="cp">padding</span>: <span class="cpv">20px</span>; }</div>
+      <div class="hint-box">💡 CSS goes inside a <code class="inline">&lt;style&gt;</code> tag in the <code class="inline">&lt;head&gt;</code> of your HTML!</div>
+    </div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="editor-filename">style.css</span></div>
+    <div class="editor-layout">
+      <div class="editor-pane"><div class="editor-pane-label">✏️ Your Code</div>
+        <textarea class="code-textarea" id="editor-css-1" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  body { background-color: #e8f4ff; font-family: Arial; color: #222; }
+  h1   { color: #0ea5e9; font-size: 2rem; }
+  p    { color: #555; font-size: 1.1rem; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;CSS is Amazing! 🎨&lt;/h1&gt;
+  &lt;p&gt;I just styled this with CSS!&lt;/p&gt;
+  &lt;p&gt;Try changing the colours above.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+      </div>
+      <div class="preview-pane"><div class="preview-pane-label">👁️ Live Preview</div><iframe class="preview-iframe" id="preview-css-1"></iframe></div>
+    </div>
+    <div class="editor-actions">
+      <button class="btn-run" onclick="runCode('css-1')">▶ Run Code</button>
+      <button class="btn-reset" onclick="resetCode('css-1')">↺ Reset</button>
+      <span class="run-hint">Change hex colours and run again!</span>
+    </div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="lesson-card-head css">📖 Lesson 2 — Box Model &amp; Flexbox</div>
+    <div class="lesson-card-body">
+      <p>Every HTML element is a <strong>box</strong>. <strong>Padding</strong> adds space inside; <strong>margin</strong> adds space outside. <strong>Flexbox</strong> arranges elements in rows or columns easily.</p>
+      <div class="code-example"><span class="lbl">BOX MODEL + FLEX</span><span class="cs">.card</span> {
+  <span class="cp">padding</span>: <span class="cpv">24px</span>;          <span class="cm">/* space INSIDE */</span>
+  <span class="cp">margin</span>: <span class="cpv">20px auto</span>;    <span class="cm">/* auto = centres horizontally */</span>
+  <span class="cp">display</span>: <span class="cpv">flex</span>;
+  <span class="cp">flex-direction</span>: <span class="cpv">column</span>;
+  <span class="cp">align-items</span>: <span class="cpv">center</span>;
+  <span class="cp">gap</span>: <span class="cpv">12px</span>;
+}</div>
+    </div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="editor-filename">profile-styled.html</span></div>
+    <div class="editor-layout">
+      <div class="editor-pane"><div class="editor-pane-label">✏️ Your Code</div>
+        <textarea class="code-textarea" id="editor-css-2" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  body { background:#e8f0ff; font-family:Arial; display:flex; justify-content:center; padding:40px 20px; }
+  .card { background:white; border:3px solid #222; border-radius:16px; padding:28px 24px; width:300px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; box-shadow:6px 6px 0 #222; }
+  h1 { font-size:1.4rem; color:#1e1e3f; }
+  .role { background:#f97316; color:white; border-radius:999px; padding:4px 14px; font-size:0.8rem; font-weight:bold; }
+  p { font-size:0.9rem; color:#555; }
+  ul { text-align:left; padding-left:1.2rem; }
+  button { background:#1e1e3f; color:white; border:none; border-radius:8px; padding:10px 24px; cursor:pointer; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="card"&gt;
+    &lt;h1&gt;Your Name 😊&lt;/h1&gt;
+    &lt;span class="role"&gt;Student 🎓&lt;/span&gt;
+    &lt;p&gt;I love coding and learning!&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;🎮 Gaming&lt;/li&gt;
+      &lt;li&gt;📚 Reading&lt;/li&gt;
+      &lt;li&gt;🎨 Art&lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;button&gt;Say Hello 👋&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+      </div>
+      <div class="preview-pane"><div class="preview-pane-label">👁️ Live Preview</div><iframe class="preview-iframe" id="preview-css-2"></iframe></div>
+    </div>
+    <div class="editor-actions">
+      <button class="btn-run" onclick="runCode('css-2')">▶ Run Code</button>
+      <button class="btn-reset" onclick="resetCode('css-2')">↺ Reset</button>
+      <span class="run-hint">Make it your own!</span>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <div class="task-card-head">✅ CSS Tasks!</div>
+    <div class="task-list" id="tasks-css">
+      <div class="task-item" onclick="toggleTask(this,'css',0)"><div class="task-checkbox"></div><div class="task-text">Change <code class="inline">background-color</code> of <code class="inline">body</code> to a colour you like</div></div>
+      <div class="task-item" onclick="toggleTask(this,'css',1)"><div class="task-checkbox"></div><div class="task-text">Change the <code class="inline">.role</code> badge colour (try <code class="inline">#0ea5e9</code>)</div></div>
+      <div class="task-item" onclick="toggleTask(this,'css',2)"><div class="task-checkbox"></div><div class="task-text">Increase the <code class="inline">font-size</code> of the <code class="inline">p</code> selector</div></div>
+      <div class="task-item" onclick="toggleTask(this,'css',3)"><div class="task-checkbox"></div><div class="task-text">Add <code class="inline">box-shadow: 6px 6px 0 #222</code> to the card</div></div>
+      <div class="task-item" onclick="toggleTask(this,'css',4)"><div class="task-checkbox"></div><div class="task-text">Change the button colour and add a <code class="inline">border-radius</code></div></div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-card-head">🧠 CSS Quiz!</div>
+    <div class="quiz-body">
+      <div id="css-q1">
+        <p class="quiz-q">1. What does CSS stand for?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'css-q1')"><div class="quiz-opt-dot"></div>Colourful Style Sheets</div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q1')"><div class="quiz-opt-dot"></div>Computer Style Systems</div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q1')"><div class="quiz-opt-dot"></div>Cascading Style Sheets</div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q1')"><div class="quiz-opt-dot"></div>Creative Styling Syntax</div>
+        </div>
+        <div class="quiz-feedback" id="fb-css-q1"></div>
+        <button class="btn-check" id="chk-css-q1" onclick="checkQuiz('css-q1',2,'✅ Correct! CSS = Cascading Style Sheets!','❌ Not quite. CSS = Cascading Style Sheets.')">Check Answer</button>
+      </div>
+      <hr style="margin:1.3rem 0;border-color:var(--rule)">
+      <div id="css-q2">
+        <p class="quiz-q">2. Which property adds space <em>inside</em> an element?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'css-q2')"><div class="quiz-opt-dot"></div><code class="inline">margin</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q2')"><div class="quiz-opt-dot"></div><code class="inline">padding</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q2')"><div class="quiz-opt-dot"></div><code class="inline">border</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q2')"><div class="quiz-opt-dot"></div><code class="inline">spacing</code></div>
+        </div>
+        <div class="quiz-feedback" id="fb-css-q2"></div>
+        <button class="btn-check" id="chk-css-q2" onclick="checkQuiz('css-q2',1,'✅ Correct! Padding = space inside. Margin = space outside.','❌ Not quite. Padding = space INSIDE the element.')">Check Answer</button>
+      </div>
+      <hr style="margin:1.3rem 0;border-color:var(--rule)">
+      <div id="css-q3">
+        <p class="quiz-q">3. How do you select an element with class "card"?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'css-q3')"><div class="quiz-opt-dot"></div><code class="inline">#card { }</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q3')"><div class="quiz-opt-dot"></div><code class="inline">card { }</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q3')"><div class="quiz-opt-dot"></div><code class="inline">.card { }</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'css-q3')"><div class="quiz-opt-dot"></div><code class="inline">*card { }</code></div>
+        </div>
+        <div class="quiz-feedback" id="fb-css-q3"></div>
+        <button class="btn-check" id="chk-css-q3" onclick="checkQuiz('css-q3',2,'✅ Correct! Dot (.) = class selector. # = id selector.','❌ Not quite. Class selector = .card { }')">Check Answer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="reflection-card">
+    <div class="reflection-head">✏️ Reflection</div>
+    <div class="reflection-body">
+      <label class="reflection-label">What is the difference between padding and margin?</label>
+      <textarea class="reflection-textarea" id="reflect-css-1" placeholder="Write your answer here..." oninput="saveReflection('css',0,this.value)"></textarea>
+      <label class="reflection-label" style="margin-top:.9rem">What CSS property did you enjoy most and why?</label>
+      <textarea class="reflection-textarea" id="reflect-css-2" placeholder="Write your answer here..." oninput="saveReflection('css',1,this.value)"></textarea>
+    </div>
+  </div>
+
+  <div class="complete-zone" style="background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-color:var(--css)">
+    <h3>🎉 Awesome styling skills!</h3>
+    <p>Complete everything below to unlock JavaScript:</p>
+    <div class="requirements-list" id="reqs-css"></div>
+    <button class="btn-complete" id="btn-complete-css" onclick="completeStage('css')" disabled style="background:var(--css)">Complete Stage 2 &amp; Unlock JavaScript! 🔓</button>
+  </div>
+</div>
+
+<!-- STAGE 3 — JAVASCRIPT -->
+<div id="screen-js" class="stage-screen">
+  <div class="stage-header js">
+    <div class="sh-icon">🟡</div>
+    <div><h2>Stage 3 — JavaScript</h2><p>Make webpages interactive — clicks, alerts, DOM changes!</p></div>
+    <div class="progress-row" id="js-dots"></div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="lesson-card-head js">📖 Lesson 1 — What is JavaScript?</div>
+    <div class="lesson-card-body">
+      <p><strong>JavaScript</strong> is the <strong>brain</strong> of a webpage. HTML is the skeleton, CSS is the clothes — JavaScript makes everything <strong>move and respond</strong> to user actions!</p>
+      <div class="code-example"><span class="lbl">JAVASCRIPT</span><span class="cm">// Variables store values</span>
+<span class="ck">let</span> name = <span class="cstr">"Alex"</span>;
+<span class="ck">let</span> age  = <span class="cnum">15</span>;
+<span class="cf">alert</span>(<span class="cstr">"Hello!"</span>);
+<span class="cf">console</span>.<span class="cf">log</span>(<span class="cstr">"My name is "</span> + name);</div>
+      <div class="hint-box">💡 <code class="inline">let</code> creates a variable — a named box that stores a value you can use later!</div>
+    </div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="editor-filename">script.js</span></div>
+    <div class="editor-layout">
+      <div class="editor-pane"><div class="editor-pane-label">✏️ Your Code</div>
+        <textarea class="code-textarea" id="editor-js-1" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  body { font-family:Arial; padding:20px; background:#fffbeb; }
+  #output { background:#1e1e3f; color:#a8dadc; padding:14px; border-radius:8px; font-family:monospace; margin-top:10px; min-height:60px; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;🟡 My First JavaScript!&lt;/h2&gt;
+  &lt;button onclick="sayHello()"&gt;Say Hello!&lt;/button&gt;
+  &lt;div id="output"&gt;Click the button...&lt;/div&gt;
+&lt;script&gt;
+  function sayHello() {
+    let name = "Coder";
+    let message = "Hello, " + name + "! 🎉";
+    document.getElementById("output").innerText = message;
+  }
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+      </div>
+      <div class="preview-pane"><div class="preview-pane-label">👁️ Live Preview</div><iframe class="preview-iframe" id="preview-js-1"></iframe></div>
+    </div>
+    <div class="editor-actions">
+      <button class="btn-run" onclick="runCode('js-1')">▶ Run Code</button>
+      <button class="btn-reset" onclick="resetCode('js-1')">↺ Reset</button>
+      <span class="run-hint">Run, then click the button in the preview!</span>
+    </div>
+  </div>
+
+  <div class="lesson-card">
+    <div class="lesson-card-head js">📖 Lesson 2 — Functions &amp; DOM</div>
+    <div class="lesson-card-body">
+      <p>A <strong>function</strong> is reusable code you define once and call whenever needed. The <strong>DOM</strong> is how JavaScript reads and changes HTML on the page.</p>
+      <div class="code-example"><span class="lbl">FUNCTIONS + DOM</span><span class="ck">function</span> <span class="cf">changeTitle</span>() {
+  document.<span class="cf">getElementById</span>(<span class="cstr">"title"</span>).innerText = <span class="cstr">"Clicked! 🎉"</span>;
+}
+<span class="cm">// In HTML: &lt;button onclick="changeTitle()"&gt;Click!&lt;/button&gt;</span></div>
+      <div class="hint-box">💡 <code class="inline">document.getElementById("id")</code> finds the element with that id so you can change it!</div>
+    </div>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div><span class="editor-filename">interactive-card.html</span></div>
+    <div class="editor-layout">
+      <div class="editor-pane"><div class="editor-pane-label">✏️ Your Code</div>
+        <textarea class="code-textarea" id="editor-js-2" spellcheck="false">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;style&gt;
+  body { font-family:Arial; background:#f0f4ff; display:flex; justify-content:center; padding:30px; }
+  .card { background:white; border:3px solid #222; border-radius:16px; padding:24px; width:300px; text-align:center; box-shadow:6px 6px 0 #222; }
+  button { background:#1e1e3f; color:white; border:none; border-radius:8px; padding:10px 20px; margin:5px; cursor:pointer; }
+  button:hover { background:#2d2d5f; }
+  #message { margin-top:12px; padding:10px; border-radius:8px; font-weight:bold; display:none; }
+&lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="card"&gt;
+    &lt;h2 id="name"&gt;Your Name 😊&lt;/h2&gt;
+    &lt;p id="bio"&gt;I am learning JavaScript!&lt;/p&gt;
+    &lt;button onclick="sayHello()"&gt;👋 Say Hello&lt;/button&gt;
+    &lt;button onclick="changeBio()"&gt;✏️ Change Bio&lt;/button&gt;
+    &lt;button onclick="changeColor()"&gt;🎨 Change Color&lt;/button&gt;
+    &lt;div id="message"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;script&gt;
+  function sayHello() {
+    let msg = document.getElementById("message");
+    msg.style.display = "block";
+    msg.style.background = "#ecfdf5";
+    msg.style.color = "#065f46";
+    msg.innerText = "Hello! Great to meet you! 🎉";
+  }
+  function changeBio() {
+    let newBio = prompt("Enter a new bio:");
+    if (newBio) document.getElementById("bio").innerText = newBio;
+  }
+  function changeColor() {
+    let colors = ["#ffd166","#a8dadc","#f4a261","#c084fc"];
+    let r = colors[Math.floor(Math.random() * colors.length)];
+    document.querySelector(".card").style.background = r;
+  }
+&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</textarea>
+      </div>
+      <div class="preview-pane"><div class="preview-pane-label">👁️ Live Preview</div><iframe class="preview-iframe" id="preview-js-2"></iframe></div>
+    </div>
+    <div class="editor-actions">
+      <button class="btn-run" onclick="runCode('js-2')">▶ Run Code</button>
+      <button class="btn-reset" onclick="resetCode('js-2')">↺ Reset</button>
+      <span class="run-hint">Run, then try all the buttons!</span>
+    </div>
+  </div>
+
+  <div class="task-card">
+    <div class="task-card-head">✅ JavaScript Tasks!</div>
+    <div class="task-list" id="tasks-js">
+      <div class="task-item" onclick="toggleTask(this,'js',0)"><div class="task-checkbox"></div><div class="task-text">Run the interactive card and click all three buttons</div></div>
+      <div class="task-item" onclick="toggleTask(this,'js',1)"><div class="task-checkbox"></div><div class="task-text">Change the <code class="inline">sayHello()</code> message to include your name</div></div>
+      <div class="task-item" onclick="toggleTask(this,'js',2)"><div class="task-checkbox"></div><div class="task-text">Add a 4th colour to the <code class="inline">colors</code> array</div></div>
+      <div class="task-item" onclick="toggleTask(this,'js',3)"><div class="task-checkbox"></div><div class="task-text">Add a new button that changes the <code class="inline">&lt;h2&gt;</code> name</div></div>
+      <div class="task-item" onclick="toggleTask(this,'js',4)"><div class="task-checkbox"></div><div class="task-text">Explain what <code class="inline">Math.random()</code> does in the <code class="inline">changeColor</code> function</div></div>
+    </div>
+  </div>
+
+  <div class="quiz-card">
+    <div class="quiz-card-head">🧠 JavaScript Quiz — Final test!</div>
+    <div class="quiz-body">
+      <div id="js-q1">
+        <p class="quiz-q">1. Which keyword creates a variable in JavaScript?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'js-q1')"><div class="quiz-opt-dot"></div><code class="inline">let</code> or <code class="inline">var</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q1')"><div class="quiz-opt-dot"></div><code class="inline">make</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q1')"><div class="quiz-opt-dot"></div><code class="inline">set</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q1')"><div class="quiz-opt-dot"></div><code class="inline">create</code></div>
+        </div>
+        <div class="quiz-feedback" id="fb-js-q1"></div>
+        <button class="btn-check" id="chk-js-q1" onclick="checkQuiz('js-q1',0,'✅ Correct! Use let (modern) or var to create variables.','❌ Not quite. Use: let name = \"Alex\";')">Check Answer</button>
+      </div>
+      <hr style="margin:1.3rem 0;border-color:var(--rule)">
+      <div id="js-q2">
+        <p class="quiz-q">2. What does <code class="inline">document.getElementById("box")</code> do?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'js-q2')"><div class="quiz-opt-dot"></div>Creates a new element called "box"</div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q2')"><div class="quiz-opt-dot"></div>Deletes the element with id "box"</div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q2')"><div class="quiz-opt-dot"></div>Finds the HTML element with <code class="inline">id="box"</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q2')"><div class="quiz-opt-dot"></div>Adds a CSS class to "box"</div>
+        </div>
+        <div class="quiz-feedback" id="fb-js-q2"></div>
+        <button class="btn-check" id="chk-js-q2" onclick="checkQuiz('js-q2',2,'✅ Correct! It finds and returns the element with that id.','❌ Not quite. getElementById finds the HTML element with that id.')">Check Answer</button>
+      </div>
+      <hr style="margin:1.3rem 0;border-color:var(--rule)">
+      <div id="js-q3">
+        <p class="quiz-q">3. How do you define a function called <code class="inline">greet</code>?</p>
+        <div class="quiz-options">
+          <div class="quiz-option" onclick="selectOption(this,'js-q3')"><div class="quiz-opt-dot"></div><code class="inline">make greet() { }</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q3')"><div class="quiz-opt-dot"></div><code class="inline">function greet() { }</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q3')"><div class="quiz-opt-dot"></div><code class="inline">define greet() { }</code></div>
+          <div class="quiz-option" onclick="selectOption(this,'js-q3')"><div class="quiz-opt-dot"></div><code class="inline">greet = function { }</code></div>
+        </div>
+        <div class="quiz-feedback" id="fb-js-q3"></div>
+        <button class="btn-check" id="chk-js-q3" onclick="checkQuiz('js-q3',1,'✅ Correct! Functions start with the keyword function.','❌ Not quite. Use: function greet() { }')">Check Answer</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="reflection-card">
+    <div class="reflection-head">✏️ Final Reflection</div>
+    <div class="reflection-body">
+      <label class="reflection-label">What is JavaScript and how is it different from HTML and CSS?</label>
+      <textarea class="reflection-textarea" id="reflect-js-1" placeholder="Write your answer here..." oninput="saveReflection('js',0,this.value)"></textarea>
+      <label class="reflection-label" style="margin-top:.9rem">What would you like to build now that you know HTML, CSS, and JavaScript?</label>
+      <textarea class="reflection-textarea" id="reflect-js-2" placeholder="Dream big! A game? A website? An app?..." oninput="saveReflection('js',1,this.value)"></textarea>
+    </div>
+  </div>
+
+  <div class="complete-zone" style="background:linear-gradient(135deg,#fffbeb,#fef9c3);border-color:var(--js)">
+    <h3>🏆 Final Stage!</h3>
+    <p>Complete everything below to earn your certificate:</p>
+    <div class="requirements-list" id="reqs-js"></div>
+    <button class="btn-complete" id="btn-complete-js" onclick="completeStage('js')" disabled style="background:var(--js);color:var(--ink)">Complete Stage 3 &amp; Get My Certificate! 🎓</button>
+  </div>
+</div>
+
+<!-- DONE SCREEN -->
+<div id="screen-done">
+  <div class="done-emoji">🏆</div>
+  <h1>You Did It, <span id="done-name">Coder</span>!</h1>
+  <p>You've mastered HTML, CSS, and JavaScript — the three superpowers of the web. You are officially a web developer!</p>
+  <div class="final-badges">
+    <div class="final-badge html"><div class="fb-icon">🟠</div><div class="fb-name">HTML Master</div></div>
+    <div class="final-badge css"><div class="fb-icon">🔵</div><div class="fb-name">CSS Stylist</div></div>
+    <div class="final-badge js"><div class="fb-icon">🟡</div><div class="fb-name">JS Developer</div></div>
+  </div>
+  <div style="font-size:1.1rem;font-weight:700;color:var(--muted);margin-bottom:2rem">Total XP: ⭐ <span id="final-xp">0</span></div>
+  <button class="btn-start" onclick="restartJourney()" style="background:var(--success)">Start Again 🔄</button>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal-box">
+    <canvas id="confetti-canvas"></canvas>
+    <span class="modal-emoji" id="modal-emoji">🎉</span>
+    <h2 id="modal-title">Stage Complete!</h2>
+    <p id="modal-body">Great work!</p>
+    <div class="modal-xp" id="modal-xp">+50 XP</div><br>
+    <button class="btn-modal" id="modal-btn" onclick="closeModal()">Continue →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+  FIREBASE SDK (v9 compat — works in plain HTML)
+══════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+/* ══════════════════════════════════════════════
+  🔧 FIREBASE CONFIG — PASTE YOUR CONFIG HERE
+  Steps:
+  1. Go to https://console.firebase.google.com
+  2. Create a project → Add a web app
+  3. Copy the firebaseConfig object and paste it below
+  4. In Firebase console → Firestore Database → Create database (test mode)
+══════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyCC_XTFGv9S3UCisrNN1GpqSb7pgWXGcCc",
+  authDomain:        "iprep-codekid.firebaseapp.com",
+  projectId:         "iprep-codekid",
+  storageBucket:     "iprep-codekid.firebasestorage.app",
+  messagingSenderId: "716251188062",
+  appId:             "1:716251188062:web:2f77950d88635dd2d21dcf",
+  measurementId:     "G-M13V214VVL"
+};
+
+/* ══ FIREBASE INIT ══ */
+let db = null;
+let firebaseReady = false;
+
+function initFirebase() {
+  try {
+    const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    firebaseReady = true;
+    setSyncStatus('synced', 'Firebase ready ✓');
+    console.log('Firebase ready ✓');
+  } catch(e) {
+    setSyncStatus('error', 'Firebase error — see console');
+    console.error('Firebase init failed:', e);
+  }
+}
+
+function setSyncStatus(state, label) {
+  const dot = document.getElementById('sync-dot');
+  const lbl = document.getElementById('sync-label');
+  if (dot) { dot.className = 'sync-dot ' + state; }
+  if (lbl) { lbl.textContent = label; }
+}
+
+/* ══ PERSIST TO FIRESTORE ══ */
+let saveTimer = null;
+function scheduleSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persistToFirebase, 800); // debounce
+}
+
+async function persistToFirebase() {
+  // If Firebase isn't ready yet, retry in 1 second
+  if (!firebaseReady) { setTimeout(persistToFirebase, 1000); return; }
+  if (!S.name || S.name === 'Coder') return;
+  setSyncStatus('syncing', 'Saving...');
+  try {
+    const payload = {
+      name: S.name,
+      className: S.className,
+      xp: S.xp,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+      stages: {
+        html: { completed: S.completed.html, tasks: S.tasks.html, quiz: filterQ('html'), reflections: S.ref.html },
+        css:  { completed: S.completed.css,  tasks: S.tasks.css,  quiz: filterQ('css'),  reflections: S.ref.css  },
+        js:   { completed: S.completed.js,   tasks: S.tasks.js,   quiz: filterQ('js'),   reflections: S.ref.js   }
+      }
+    };
+    console.log('Saving to Firestore:', S.name, payload);
+    await db.collection('students').doc(S.name).set(payload, { merge: true });
+    setSyncStatus('synced', 'Saved ✓');
+    console.log('Firestore save OK');
+  } catch(e) {
+    setSyncStatus('error', 'Save failed — check console');
+    console.error('Firestore save error:', e);
+  }
+}
+
+/* ══ STATE ══ */
+const S = {
+  name: 'Coder', className: '', xp: 0,
+  unlocked:  { html: true,  css: false, js: false },
+  completed: { html: false, css: false, js: false },
+  tasks: { html: [0,0,0,0,0], css: [0,0,0,0,0], js: [0,0,0,0,0] },
+  quiz: {},
+  ref:  { html: ['',''], css: ['',''], js: ['',''] }
+};
+const DEFS = {};
+const QS = {
+  html: ['html-q1','html-q2','html-q3'],
+  css:  ['css-q1','css-q2','css-q3'],
+  js:   ['js-q1','js-q2','js-q3']
+};
+let modalCB = null;
+
+/* ══ AUDIO ══ */
+let AC2 = null;
+function ac() { if(!AC2) AC2 = new(window.AudioContext||window.webkitAudioContext)(); return AC2; }
+function tone(f, t='sine', d=.15, v=.25, delay=0) {
+  try {
+    const o=ac().createOscillator(), g=ac().createGain();
+    o.connect(g); g.connect(ac().destination);
+    o.type=t; o.frequency.value=f;
+    g.gain.setValueAtTime(v, ac().currentTime+delay);
+    g.gain.exponentialRampToValueAtTime(.001, ac().currentTime+delay+d);
+    o.start(ac().currentTime+delay); o.stop(ac().currentTime+delay+d+.05);
+  } catch {}
+}
+function sndOK()       { tone(523,'sine',.1,.2); tone(659,'sine',.1,.2,.1); tone(784,'sine',.15,.2,.2); }
+function sndBad()      { tone(300,'sawtooth',.08,.2); tone(240,'sawtooth',.12,.2,.09); }
+function sndTask()     { tone(440,'sine',.07,.18); tone(554,'sine',.09,.18,.07); }
+function sndUnlock()   { [523,659,784,1047].forEach((f,i)=>tone(f,'sine',.14,.28,i*.1)); }
+function sndComplete() { [523,659,784,1047,1319,1047,784,1319].forEach((f,i)=>tone(f,'sine',.17,.26,i*.09)); }
+function sndCert()     { [523,587,659,698,784,880,988,1047].forEach((f,i)=>tone(f,'triangle',.2,.3,i*.1)); }
+
+/* ══ CONFETTI ══ */
+function confetti(canvas, ms=2800) {
+  canvas.width = canvas.parentElement.offsetWidth;
+  canvas.height = canvas.parentElement.offsetHeight;
+  const ctx = canvas.getContext('2d');
+  const cols = ['#f97316','#0ea5e9','#eab308','#10b981','#c084fc','#fb7185'];
+  const ps = Array.from({length:90}, () => ({
+    x: Math.random()*canvas.width, y: Math.random()*canvas.height - canvas.height,
+    r: Math.random()*7+3, c: cols[Math.floor(Math.random()*cols.length)],
+    vx: (Math.random()-.5)*3, vy: Math.random()*3+1,
+    rot: Math.random()*360, vr: (Math.random()-.5)*6
+  }));
+  let t0 = null;
+  (function draw(ts) {
+    if(!t0) t0=ts;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ps.forEach(p => {
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r); ctx.restore();
+      p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.vy+=.05;
+    });
+    if(ts-t0<ms) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  })();
+}
+function particles(x, y, n=10) {
+  const cols=['#f97316','#0ea5e9','#eab308','#10b981','#c084fc'];
+  for(let i=0;i<n;i++) {
+    const e=document.createElement('div'); e.className='particle';
+    const s=Math.random()*10+5;
+    e.style.cssText=`width:${s}px;height:${s}px;background:${cols[i%cols.length]};left:${x+(Math.random()*40-20)}px;top:${y}px;animation-duration:${Math.random()*.8+1}s`;
+    document.body.appendChild(e); setTimeout(()=>e.remove(), 2000);
+  }
+}
+function xpPop(n, x, y) {
+  const e=document.createElement('div'); e.className='xp-popup';
+  e.textContent='+'+n+' XP!'; e.style.left=x+'px'; e.style.top=y+'px';
+  document.body.appendChild(e); setTimeout(()=>e.remove(), 1500);
+}
+
+/* ══ SCREENS ══ */
+function show(id) {
+  document.querySelectorAll('.stage-screen,#screen-welcome,#screen-done').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+  document.querySelectorAll('.stage-pill').forEach(p=>p.classList.remove('active-pill'));
+  const stage = id.replace('screen-','');
+  const pill = document.getElementById('pill-'+stage);
+  if(pill && !pill.classList.contains('locked')) pill.classList.add('active-pill');
+}
+
+/* ══ START ══ */
+function startJourney() {
+  const n = document.getElementById('student-name').value.trim();
+  const c = document.getElementById('student-class').value.trim();
+  if(!n) { document.getElementById('student-name').focus(); return; }
+  if(!c) { document.getElementById('student-class').focus(); return; }
+  S.name = n;
+  S.className = c;
+  document.getElementById('screen-welcome').style.display = 'none';
+  show('screen-html');
+  runCode('html-1'); runCode('html-2');
+  buildDots(); ['html','css','js'].forEach(renderReqs);
+  updateXP();
+  // Save immediately (no debounce) so the student record appears in the dashboard right away
+  persistToFirebase();
+}
+
+/* ══ NAV ══ */
+function tryGoStage(st) {
+  if(!S.unlocked[st]) {
+    const p=document.getElementById('pill-'+st);
+    p.classList.add('shake'); setTimeout(()=>p.classList.remove('shake'), 500);
+    sndBad(); return;
+  }
+  show('screen-'+st);
+  setTimeout(()=>['html-1','html-2','css-1','css-2','js-1','js-2'].forEach(id=>{
+    if(document.getElementById('editor-'+id)) runCode(id);
+  }), 120);
+}
+
+/* ══ XP ══ */
+function addXP(n, el) {
+  S.xp += n; updateXP();
+  if(el) {
+    const r=el.getBoundingClientRect();
+    xpPop(n, r.left+r.width/2, r.top+scrollY-30);
+    particles(r.left+r.width/2, r.top+scrollY, 7);
+  }
+  scheduleSave();
+}
+function updateXP() {
+  document.getElementById('xp-count').textContent = S.xp;
+  document.getElementById('xp-bar').style.width = Math.min((S.xp/600)*100,100)+'%';
+}
+
+/* ══ DOTS ══ */
+function buildDots() {
+  ['html','css','js'].forEach(st=>{
+    const w=document.getElementById(st+'-dots'); if(!w) return; w.innerHTML='';
+    for(let i=0;i<8;i++){
+      const d=document.createElement('div');
+      d.className='step-dot'+(i===0?' active-dot':'');
+      w.appendChild(d);
+    }
+  });
+}
+function advDot(st) {
+  const ds=document.querySelectorAll('#'+st+'-dots .step-dot');
+  let ai=-1; ds.forEach((d,i)=>{if(d.classList.contains('active-dot'))ai=i;});
+  if(ai>=0){ds[ai].classList.remove('active-dot'); ds[ai].classList.add('done');}
+  if(ai+1<ds.length) ds[ai+1].classList.add('active-dot');
+}
+
+/* ══ EDITORS ══ */
+function runCode(id) {
+  const ta=document.getElementById('editor-'+id), fr=document.getElementById('preview-'+id);
+  if(!ta||!fr) return;
+  const d=fr.contentDocument||fr.contentWindow.document; d.open(); d.write(ta.value); d.close();
+}
+function resetCode(id) {
+  const ta=document.getElementById('editor-'+id);
+  if(ta&&DEFS[id]){ ta.value=DEFS[id]; runCode(id); }
+}
+
+/* ══ TASKS ══ */
+function toggleTask(item, st, idx) {
+  const was=item.classList.contains('done');
+  item.classList.toggle('done');
+  item.querySelector('.task-checkbox').textContent = item.classList.contains('done')?'✓':'';
+  if(!was && item.classList.contains('done')) {
+    S.tasks[st][idx]=1; addXP(10,item); sndTask(); advDot(st);
+    particles(item.getBoundingClientRect().left+20, item.getBoundingClientRect().top+scrollY, 9);
+  } else if(was) {
+    S.tasks[st][idx]=0; S.xp=Math.max(0,S.xp-10); updateXP();
+  }
+  renderReqs(st); scheduleSave();
+}
+
+/* ══ QUIZ ══ */
+function selectOption(el, qid) {
+  if(S.quiz[qid]) return;
+  document.querySelectorAll('#'+qid+' .quiz-option').forEach(o=>o.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function checkQuiz(qid, ci, ok, bad) {
+  if(S.quiz[qid]) return;
+  const opts=document.querySelectorAll('#'+qid+' .quiz-option');
+  const fb=document.getElementById('fb-'+qid);
+  const btn=document.getElementById('chk-'+qid);
+  const sel=document.querySelector('#'+qid+' .quiz-option.selected');
+  if(!sel){ fb.className='quiz-feedback show wrong'; fb.innerHTML='⚠️ Select an answer first!'; return; }
+  const si=Array.from(opts).indexOf(sel);
+  const correct=si===ci;
+  S.quiz[qid]={sel:si, correct, answer:sel.textContent.trim()};
+  btn.disabled=true; opts.forEach(o=>o.classList.add('disabled'));
+  const st=qid.split('-')[0];
+  if(correct){
+    sel.classList.add('correct'); fb.className='quiz-feedback show correct'; fb.innerHTML=ok;
+    addXP(20,sel); sndOK();
+    particles(sel.getBoundingClientRect().left+50, sel.getBoundingClientRect().top+scrollY, 12);
+    advDot(st);
+  } else {
+    sel.classList.add('wrong'); opts[ci].classList.add('correct');
+    fb.className='quiz-feedback show wrong'; fb.innerHTML=bad;
+    sndBad(); sel.classList.add('shake'); setTimeout(()=>sel.classList.remove('shake'),500);
+  }
+  renderReqs(st); scheduleSave();
+}
+
+/* ══ REFLECTIONS ══ */
+function saveReflection(st, i, v) {
+  S.ref[st][i]=v; renderReqs(st); scheduleSave();
+}
+
+/* ══ REQUIREMENTS ══ */
+function met(st) {
+  const t=S.tasks[st].every(v=>v);
+  const q=QS[st].every(id=>S.quiz[id]);
+  const r=S.ref[st].every(v=>v&&v.trim().length>10);
+  return{t,q,r,all:t&&q&&r};
+}
+function renderReqs(st) {
+  const w=document.getElementById('reqs-'+st); if(!w) return;
+  const m=met(st);
+  const td=S.tasks[st].filter(Boolean).length;
+  const qd=QS[st].filter(id=>S.quiz[id]).length;
+  const rd=S.ref[st].filter(v=>v&&v.trim().length>10).length;
+  w.innerHTML=`
+    <div class="req-item ${m.t?'met':'unmet'}">${m.t?'✅':'❌'} All tasks done (${td}/5)</div>
+    <div class="req-item ${m.q?'met':'unmet'}">${m.q?'✅':'❌'} All quiz questions answered (${qd}/3)</div>
+    <div class="req-item ${m.r?'met':'unmet'}">${m.r?'✅':'❌'} Both reflections written (${rd}/2)</div>`;
+  const btn=document.getElementById('btn-complete-'+st);
+  if(btn) btn.disabled=!m.all;
+}
+
+/* ══ COMPLETE STAGE ══ */
+function completeStage(st) {
+  if(!met(st).all || S.completed[st]) return;
+  S.completed[st]=true; addXP(50); sndComplete(); advDot(st);
+  const cfgs = {
+    html:{emoji:'🎨',title:'HTML Complete! 🟠',body:`Amazing work, ${S.name}! You know how to build webpage structure. CSS is now unlocked!`,bc:'css',bt:'Go to CSS Stage 🔵 →',next:'css',unlock:'css'},
+    css: {emoji:'⚡',title:'CSS Complete! 🔵', body:`You're a styling superstar, ${S.name}! JavaScript is now unlocked!`,bc:'js', bt:'Go to JavaScript Stage 🟡 →',next:'js', unlock:'js'},
+    js:  {emoji:'🏆',title:'All Stages Complete!',body:`INCREDIBLE, ${S.name}! You've mastered HTML, CSS, AND JavaScript. You are a web developer!`,bc:'done',bt:'See My Certificate! 🎓',next:null,unlock:null}
+  };
+  const c=cfgs[st];
+  document.getElementById('modal-emoji').textContent=c.emoji;
+  document.getElementById('modal-title').textContent=c.title;
+  document.getElementById('modal-body').textContent=c.body;
+  document.getElementById('modal-xp').textContent='+50 XP Bonus!';
+  const mb=document.getElementById('modal-btn');
+  mb.className='btn-modal '+c.bc; mb.textContent=c.bt;
+  if(c.unlock){ S.unlocked[c.unlock]=true; updatePills(); sndUnlock(); }
+  modalCB = c.next ? ()=>tryGoStage(c.next) : showCert;
+  document.getElementById('modal').classList.add('show');
+  setTimeout(()=>{ confetti(document.getElementById('confetti-canvas'), 3200); if(st==='js') sndCert(); }, 100);
+  scheduleSave();
+}
+function showCert() {
+  document.getElementById('done-name').textContent=S.name;
+  document.getElementById('final-xp').textContent=S.xp;
+  document.querySelectorAll('.stage-screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-done').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'}); sndCert();
+  setTimeout(()=>{for(let i=0;i<6;i++) setTimeout(()=>particles(window.innerWidth/2,200,20),i*200);},400);
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  if(modalCB){ modalCB(); modalCB=null; }
+}
+function updatePills() {
+  ['css','js'].forEach(s=>{
+    const p=document.getElementById('pill-'+s);
+    if(S.unlocked[s]){ p.classList.remove('locked'); p.onclick=()=>tryGoStage(s); }
+  });
+}
+
+/* ══ RESTART ══ */
+function restartJourney() {
+  Object.assign(S,{xp:0,name:'Coder',className:'',
+    unlocked:{html:true,css:false,js:false},completed:{html:false,css:false,js:false},
+    tasks:{html:[0,0,0,0,0],css:[0,0,0,0,0],js:[0,0,0,0,0]},quiz:{},ref:{html:['',''],css:['',''],js:['','']}
+  });
+  document.querySelectorAll('.task-item').forEach(t=>{t.classList.remove('done');t.querySelector('.task-checkbox').textContent='';});
+  document.querySelectorAll('.quiz-option').forEach(o=>o.classList.remove('selected','correct','wrong','disabled'));
+  document.querySelectorAll('.quiz-feedback').forEach(f=>{f.className='quiz-feedback';f.innerHTML='';});
+  document.querySelectorAll('.btn-check').forEach(b=>b.disabled=false);
+  document.querySelectorAll('.reflection-textarea').forEach(t=>t.value='');
+  document.getElementById('student-name').value='';
+  document.getElementById('student-class').value='';
+  ['css','js'].forEach(s=>{const p=document.getElementById('pill-'+s);p.classList.add('locked');p.onclick=null;});
+  document.getElementById('screen-done').classList.remove('active');
+  document.getElementById('screen-welcome').style.display='flex';
+  updateXP(); buildDots(); ['html','css','js'].forEach(renderReqs);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══ UTIL ══ */
+function filterQ(st) {
+  const o={}; QS[st].forEach(q=>{if(S.quiz[q])o[q]=S.quiz[q];}); return o;
+}
+
+/* ══ INIT ══ */
+document.addEventListener('DOMContentLoaded', () => {
+  ['html-1','html-2','css-1','css-2','js-1','js-2'].forEach(id=>{
+    const ta=document.getElementById('editor-'+id); if(ta) DEFS[id]=ta.value;
+  });
+  buildDots(); ['html','css','js'].forEach(renderReqs);
+  initFirebase();
+});
+</script>
+</body>
+</html>
