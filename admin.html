@@ -120,6 +120,29 @@ td{padding:.7rem 1rem;font-size:.88rem;font-weight:600;vertical-align:middle}
 
 /* LIVE INDICATOR */
 .live-bar{background:rgba(16,185,129,.1);border:2px solid rgba(16,185,129,.3);border-radius:8px;padding:.5rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.6rem;font-size:.82rem;font-weight:700;color:var(--success)}
+
+/* DATE CARDS VIEW */
+#view-dates{display:block}
+#view-day{display:none}
+.dates-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;margin-bottom:1.8rem}
+.date-card{background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.3rem;cursor:pointer;transition:all .22s;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.date-card:hover{border-color:var(--css);transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.5)}
+.date-card.today-card{border-color:var(--success);box-shadow:0 0 0 3px rgba(16,185,129,.2)}
+.today-badge{position:absolute;top:.6rem;right:.7rem;background:var(--success);color:#fff;font-size:.65rem;font-weight:900;padding:.2rem .55rem;border-radius:999px;letter-spacing:.06em;text-transform:uppercase}
+.dc-date{font-size:1.15rem;font-weight:900;margin-bottom:.25rem}
+.dc-day{font-size:.78rem;font-weight:700;color:var(--muted);margin-bottom:.8rem}
+.dc-count{font-size:2rem;font-weight:900;line-height:1;color:var(--css)}
+.dc-label{font-size:.72rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:.15rem}
+.dc-chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:.7rem}
+.dc-chip{font-size:.68rem;font-weight:800;padding:.18rem .5rem;border-radius:999px;border:1.5px solid}
+.dc-chip.html{background:rgba(249,115,22,.15);color:var(--html);border-color:var(--html)}
+.dc-chip.css{background:rgba(14,165,233,.15);color:var(--css);border-color:var(--css)}
+.dc-chip.js{background:rgba(234,179,8,.15);color:var(--js);border-color:var(--js)}
+/* Day view back button */
+.back-btn{font-family:'Nunito',sans-serif;font-weight:800;font-size:.85rem;background:transparent;color:var(--muted);border:2px solid var(--border);border-radius:8px;padding:.35rem .9rem;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.4rem;margin-bottom:1.2rem}
+.back-btn:hover{border-color:var(--css);color:var(--css)}
+.day-heading{font-size:1.2rem;font-weight:900;margin-bottom:1.2rem;display:flex;align-items:center;gap:.7rem;flex-wrap:wrap}
+.day-today-badge{background:var(--success);color:#fff;font-size:.7rem;font-weight:900;padding:.25rem .7rem;border-radius:999px;letter-spacing:.06em}
 </style>
 </head>
 <body>
@@ -174,20 +197,31 @@ td{padding:.7rem 1rem;font-size:.88rem;font-weight:600;vertical-align:middle}
       <div class="stat-card" style="border-color:#c084fc"><div class="sc-label">Avg XP</div><div class="sc-val" id="st-xp" style="color:#c084fc">0</div><div class="sc-sub">per student</div></div>
     </div>
 
-    <!-- TABLE -->
-    <div class="sec-title">👥 All Students <span style="font-size:.78rem;font-weight:600;color:var(--muted);margin-left:.5rem">click a row to see full details</span></div>
-    <div class="table-wrap">
-      <div class="table-toolbar">
-        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
-          <input class="search-input" id="search-input" type="text" placeholder="🔍 Search by name..." oninput="filterTable()"/>
-          <select id="class-filter" onchange="filterTable()" style="font-family:Nunito,sans-serif;font-size:.85rem;font-weight:700;padding:.4rem .8rem;background:#111128;border:2px solid var(--border);border-radius:8px;color:var(--ink);outline:none;cursor:pointer">
-            <option value="">All Classes</option>
-          </select>
-        </div>
-        <button class="btn-export" onclick="exportCSV()">⬇️ Export CSV</button>
+    <!-- DATE CARDS VIEW -->
+    <div id="view-dates">
+      <div class="sec-title">📅 Activity by Date <span style="font-size:.78rem;font-weight:600;color:var(--muted);margin-left:.5rem">click a date card to see students active that day</span></div>
+      <div id="dates-grid" class="dates-grid">
+        <div class="empty-state" style="grid-column:1/-1"><div class="es-icon">⏳</div><p>Loading activity dates...</p></div>
       </div>
-      <div id="table-container">
-        <div class="empty-state"><div class="es-icon">🎓</div><p>Waiting for student data from Firestore...</p></div>
+    </div>
+
+    <!-- DAY DRILL-DOWN VIEW -->
+    <div id="view-day">
+      <button class="back-btn" onclick="showDatesView()">← Back to Dates</button>
+      <div class="day-heading" id="day-heading">Students</div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+            <input class="search-input" id="search-input" type="text" placeholder="🔍 Search by name..." oninput="filterTable()"/>
+            <select id="class-filter" onchange="filterTable()" style="font-family:Nunito,sans-serif;font-size:.85rem;font-weight:700;padding:.4rem .8rem;background:#111128;border:2px solid var(--border);border-radius:8px;color:var(--ink);outline:none;cursor:pointer">
+              <option value="">All Classes</option>
+            </select>
+          </div>
+          <button class="btn-export" onclick="exportCSV()">⬇️ Export CSV</button>
+        </div>
+        <div id="table-container">
+          <div class="empty-state"><div class="es-icon">🎓</div><p>Waiting for student data...</p></div>
+        </div>
       </div>
     </div>
 
@@ -269,6 +303,7 @@ if(sessionStorage.getItem('ck_admin')){
 let db = null;
 let allStudents = [];
 let currentStudentName = null;
+let currentDayKey = null;
 let unsubscribe = null;
 
 function initFirebase(){
@@ -291,14 +326,13 @@ function initFirebase(){
 
     unsubscribe = db.collection('students').onSnapshot(snapshot => {
       console.log('onSnapshot fired — docs:', snapshot.docs.length);
-      allStudents = snapshot.docs.map(doc => {
-        const d = doc.data();
-        console.log('Student doc:', d.name, 'XP:', d.xp);
-        return d;
-      }).sort((a,b)=>(b.xp||0)-(a.xp||0));
+      allStudents = snapshot.docs.map(doc => doc.data()).sort((a,b)=>(b.xp||0)-(a.xp||0));
       renderStats();
       populateClassFilter();
-      renderTable(allStudents);
+      renderDateCards();
+      // If day view is open, refresh its table
+      if(currentDayKey) renderDayTable(currentDayKey);
+      // If detail panel is open, refresh it
       if(currentStudentName){
         const updated = allStudents.find(s=>s.name===currentStudentName);
         if(updated) buildAllTabs(updated);
@@ -306,8 +340,8 @@ function initFirebase(){
     }, err => {
       console.error('Firestore listener error:', err);
       document.getElementById('config-banner').style.display='block';
-      document.getElementById('table-container').innerHTML =
-        '<div class="empty-state"><div class="es-icon">❌</div><p>Firestore error: ' + err.message + '</p></div>';
+      document.getElementById('dates-grid').innerHTML =
+        '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">❌</div><p>Firestore error: ' + err.message + '</p></div>';
     });
   } catch(e){
     console.error('Firebase init error:', e);
@@ -343,8 +377,107 @@ function tsStr(ts){
   return d.toLocaleString();
 }
 
+/* ══ DATE HELPERS ══ */
+function dateKey(ts){
+  if(!ts) return null;
+  const d = ts.toDate ? ts.toDate() : new Date(ts);
+  return d.toISOString().slice(0,10); // YYYY-MM-DD
+}
+function todayKey(){
+  return new Date().toISOString().slice(0,10);
+}
+function formatDateCard(key){
+  const d = new Date(key + 'T00:00:00');
+  return {
+    short: d.toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'}),
+    day:   d.toLocaleDateString(undefined,{weekday:'long'}),
+    full:  d.toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long',year:'numeric'})
+  };
+}
+
+/* ══ DATE CARDS VIEW ══ */
+function renderDateCards(){
+  const grid = document.getElementById('dates-grid');
+  if(!grid) return;
+  const today = todayKey();
+
+  // Group students by last-seen date
+  const byDate = {};
+  allStudents.forEach(s => {
+    const key = dateKey(s.lastSeen);
+    if(!key) return;
+    if(!byDate[key]) byDate[key] = [];
+    byDate[key].push(s);
+  });
+
+  const keys = Object.keys(byDate).sort((a,b)=>b.localeCompare(a)); // newest first
+
+  if(!keys.length){
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">📅</div><p>No activity recorded yet. Students must start CodeKids first.</p></div>';
+    return;
+  }
+
+  grid.innerHTML = keys.map(key => {
+    const students = byDate[key];
+    const isToday = key === today;
+    const fmt = formatDateCard(key);
+    const htmlDone = students.filter(s=>s.stages?.html?.completed).length;
+    const cssDone  = students.filter(s=>s.stages?.css?.completed).length;
+    const jsDone   = students.filter(s=>s.stages?.js?.completed).length;
+    return `
+      <div class="date-card${isToday?' today-card':''}" onclick="showDayView('${key}')">
+        ${isToday ? '<span class="today-badge">● Today</span>' : ''}
+        <div class="dc-date">${fmt.short}</div>
+        <div class="dc-day">${fmt.day}</div>
+        <div class="dc-count">${students.length}</div>
+        <div class="dc-label">student${students.length!==1?'s':''} active</div>
+        <div class="dc-chips">
+          ${htmlDone ? `<span class="dc-chip html">🟠 ${htmlDone} HTML</span>` : ''}
+          ${cssDone  ? `<span class="dc-chip css">🔵 ${cssDone} CSS</span>`   : ''}
+          ${jsDone   ? `<span class="dc-chip js">🟡 ${jsDone} JS</span>`     : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function showDayView(key){
+  currentDayKey = key;
+  const today = todayKey();
+  const isToday = key === today;
+  const fmt = formatDateCard(key);
+  const heading = document.getElementById('day-heading');
+  heading.innerHTML = `📅 ${fmt.full} ${isToday ? '<span class="day-today-badge">● Today</span>' : ''}`;
+  document.getElementById('view-dates').style.display = 'none';
+  document.getElementById('view-day').style.display = 'block';
+  document.getElementById('detail-panel').style.display = 'none';
+  currentStudentName = null;
+  renderDayTable(key);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showDatesView(){
+  currentDayKey = null;
+  document.getElementById('view-day').style.display = 'none';
+  document.getElementById('view-dates').style.display = 'block';
+  document.getElementById('detail-panel').style.display = 'none';
+  currentStudentName = null;
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderDayTable(key){
+  const today = todayKey();
+  // Show students active on this date (matched by their lastSeen date key)
+  // For today, also include students with no lastSeen yet (currently active)
+  const dayStudents = allStudents.filter(s => {
+    const k = dateKey(s.lastSeen);
+    return k === key || (key === today && !k);
+  }).sort((a,b)=>(b.xp||0)-(a.xp||0));
+  renderTable(dayStudents);
+}
+
 function populateClassFilter(){
   const sel = document.getElementById('class-filter');
+  if(!sel) return;
   const current = sel.value;
   const classes = [...new Set(allStudents.map(s=>s.className||'').filter(Boolean))].sort();
   sel.innerHTML = '<option value="">All Classes</option>' +
@@ -353,8 +486,9 @@ function populateClassFilter(){
 
 function renderTable(students){
   const wrap = document.getElementById('table-container');
+  if(!wrap) return;
   if(!students.length){
-    wrap.innerHTML='<div class="empty-state"><div class="es-icon">🎓</div><p>No students yet. Students must start CodeKids and enter their name.</p></div>';
+    wrap.innerHTML='<div class="empty-state"><div class="es-icon">🎓</div><p>No students found for this date.</p></div>';
     return;
   }
   wrap.innerHTML=`<table>
@@ -375,11 +509,17 @@ function renderTable(students){
 }
 
 function filterTable(){
+  if(!currentDayKey) return;
   const q = document.getElementById('search-input').value.toLowerCase();
   const cls = document.getElementById('class-filter').value;
-  renderTable(allStudents.filter(s=>
+  const today = todayKey();
+  const dayStudents = allStudents.filter(s => {
+    const k = dateKey(s.lastSeen);
+    return k === currentDayKey || (currentDayKey === today && !k);
+  });
+  renderTable(dayStudents.filter(s=>
     s.name.toLowerCase().includes(q) &&
-    (!cls || (s.className||'')=== cls)
+    (!cls || (s.className||'') === cls)
   ));
 }
 
@@ -416,6 +556,8 @@ function showDetail(name){
 function closeDetail(){
   document.getElementById('detail-panel').style.display='none';
   currentStudentName = null;
+  // scroll back to the day table
+  document.getElementById('view-day').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function buildAllTabs(s){
@@ -560,7 +702,9 @@ async function manualRefresh(){
     console.log('Manual fetch — docs:', snap.docs.length);
     allStudents = snap.docs.map(d=>d.data()).sort((a,b)=>(b.xp||0)-(a.xp||0));
     renderStats();
-    renderTable(allStudents);
+    populateClassFilter();
+    renderDateCards();
+    if(currentDayKey) renderDayTable(currentDayKey);
   } catch(e){ console.error('Manual fetch error:', e); alert('Error: ' + e.message); }
 }
 
@@ -569,13 +713,13 @@ function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 </script>
 
 <!-- FOOTER -->
-<footer style="background:#1e1e3f;color:#a8b4d8;text-align:center;padding:1.4rem 1rem;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;line-height:1.8;border-top:3px solid #2d2d5e;margin-top:2rem">
+<footer style="background:transparent;color:var(--muted);text-align:center;padding:1.4rem 1rem;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;line-height:1.8;border-top:2px solid var(--rule);margin-top:2rem">
   <div style="margin-bottom:.3rem">
     <span style="font-size:1rem">🚀</span>
-    <strong style="color:#fff;font-size:.88rem"> CodeKids Learning Platform</strong>
+    <strong style="font-size:.88rem"> CodeKids Learning Platform</strong>
   </div>
-  <div>Designed &amp; Developed by <strong style="color:#f97316">Mr. Randall A. Moore</strong></div>
-  <div style="margin-top:.35rem;color:#6b7db3;font-size:.75rem">
+  <div>Designed &amp; Developed by <strong style="color:var(--html)">Mr. Randall A. Moore</strong></div>
+  <div style="margin-top:.35rem;font-size:.75rem">
     &copy; <span id="footer-year"></span> Mr. Randall A. Moore. All rights reserved.
     Unauthorised reproduction or distribution of this platform is strictly prohibited.
   </div>
