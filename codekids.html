@@ -269,11 +269,6 @@ code.inline{font-family:'Fira Code',monospace;background:#f1f5f9;border:1px soli
     <div class="overview-card css-card"><div class="oc-icon">🔵</div><h3>Stage 2 — CSS</h3><p>Add colours, fonts, and layouts.</p></div>
     <div class="overview-card js-card"><div class="oc-icon">🟡</div><h3>Stage 3 — JS</h3><p>Make pages interactive and alive!</p></div>
   </div>
-  <div style="margin-top:2rem;text-align:center;font-family:'Nunito',sans-serif;line-height:1.9">
-    <div style="font-size:.85rem;font-weight:700;color:var(--muted)">Designed &amp; Developed by <strong style="color:var(--html)">Mr. Randall A. Moore</strong></div>
-    <div style="font-size:.75rem;font-weight:600;color:var(--muted)">&copy; 2026 Mr. Randall A. Moore. All rights reserved.</div>
-    <div style="font-size:.72rem;font-weight:600;color:var(--muted)">Unauthorised reproduction or distribution of this platform is strictly prohibited.</div>
-  </div>
 </div>
 
 <!-- STAGE 1 — HTML -->
@@ -1403,5 +1398,18 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<!-- FOOTER -->
+<footer style="background:#1e1e3f;color:#a8b4d8;text-align:center;padding:1.4rem 1rem;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;line-height:1.8;border-top:3px solid #2d2d5e;margin-top:2rem">
+  <div style="margin-bottom:.3rem">
+    <span style="font-size:1rem">🚀</span>
+    <strong style="color:#fff;font-size:.88rem"> CodeKids Learning Platform</strong>
+  </div>
+  <div>Designed &amp; Developed by <strong style="color:#f97316">Mr. Randall A. Moore</strong></div>
+  <div style="margin-top:.35rem;color:#6b7db3;font-size:.75rem">
+    &copy; <span id="footer-year"></span> Mr. Randall A. Moore. All rights reserved.
+    Unauthorised reproduction or distribution of this platform is strictly prohibited.
+  </div>
+  <script>document.getElementById('footer-year').textContent=new Date().getFullYear();</script>
+</footer>
 </body>
 </html>
