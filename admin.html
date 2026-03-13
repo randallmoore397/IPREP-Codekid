@@ -384,17 +384,13 @@ function filterTable(){
 }
 
 /* ══ DETAIL PANEL ══ */
-const QLabels = {
-  'html-q1':'What does HTML stand for?',
-  'html-q2':'Which tag is used for the biggest heading?',
-  'html-q3':'What tag wraps each item inside a list?',
-  'css-q1': 'What does CSS stand for?',
-  'css-q2': 'Which property adds space inside an element?',
-  'css-q3': 'How do you select an element with class "card"?',
-  'js-q1':  'Which keyword creates a variable in JavaScript?',
-  'js-q2':  'What does document.getElementById("box") do?',
-  'js-q3':  'How do you define a function called greet?'
-};
+// Generate QLabels dynamically from question numbers
+const QLabels = {};
+for(let i=1;i<=50;i++){
+  QLabels[`html-q${i}`] = `HTML Question ${i}`;
+  QLabels[`css-q${i}`]  = `CSS Question ${i}`;
+  QLabels[`js-q${i}`]   = `JavaScript Question ${i}`;
+}
 const TaskLabels = {
   html: ['Replace placeholder name','Update bio paragraph','Add 4th hobby with <li>','Add <h2> "About Me" heading','Run & verify preview'],
   css:  ['Change body background-color','Change .role badge colour','Increase p font-size','Add box-shadow to card','Change button colour & border-radius'],
@@ -465,23 +461,33 @@ function buildStageTab(s, st){
   const tasks=sd.tasks||[0,0,0,0,0];
   const quiz=sd.quiz||{};
   const refs=sd.reflections||['',''];
-  const qids={html:['html-q1','html-q2','html-q3'],css:['css-q1','css-q2','css-q3'],js:['js-q1','js-q2','js-q3']};
+  const qids={html:Array.from({length:50},(_,i)=>`html-q${i+1}`),css:Array.from({length:50},(_,i)=>`css-q${i+1}`),js:Array.from({length:50},(_,i)=>`js-q${i+1}`)};
   const colors={html:'var(--html)',css:'var(--css)',js:'var(--js)'};
 
   let html=`<div class="sd-section"><h4 style="color:${colors[st]}">✅ Tasks</h4>`;
   TaskLabels[st].forEach((lbl,i)=>{
     html+=`<div class="task-row"><span>${tasks[i]?'✅':'⬜'}</span><span style="${tasks[i]?'':'color:var(--muted)'}">${escH(lbl)}</span></div>`;
   });
-  html+=`</div><div class="sd-section"><h4 style="color:${colors[st]}">🧠 Quiz Answers</h4>`;
-  qids[st].forEach(qid=>{
-    const ans=quiz[qid];
-    html+=`<div class="quiz-row">
-      <div class="qr-q">${QLabels[qid]}</div>
-      ${ans
-        ? `<div class="qr-a"><span>${escH(ans.answer||'—')}</span><span class="${ans.correct?'correct-badge':'wrong-badge'}">${ans.correct?'CORRECT':'WRONG'}</span></div>`
-        : `<div class="no-answer">Not answered yet</div>`}
-    </div>`;
-  });
+  const totalQ = 50;
+  const roundSize = 10;
+  const answered = Object.keys(quiz).length;
+  const correctCount = Object.values(quiz).filter(a=>a.correct).length;
+  html+=`</div><div class="sd-section"><h4 style="color:${colors[st]}">🧠 Quiz Answers <span style="font-weight:600;font-size:.8rem;color:var(--muted)">${answered}/${totalQ} answered · ${correctCount} correct</span></h4>`;
+  for(let round=0; round<5; round++){
+    const roundQids = Array.from({length:roundSize},(_,i)=>`${st}-q${round*roundSize+i+1}`);
+    const roundAnswered = roundQids.filter(qid=>quiz[qid]).length;
+    html+=`<div style="margin-bottom:.8rem"><div style="font-size:.75rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.4rem">Round ${round+1} — Questions ${round*roundSize+1}–${(round+1)*roundSize} (${roundAnswered}/${roundSize} answered)</div>`;
+    roundQids.forEach(qid=>{
+      const ans=quiz[qid];
+      html+=`<div class="quiz-row">
+        <div class="qr-q">Q${qid.split('-q')[1]}. ${QLabels[qid]||qid}</div>
+        ${ans
+          ? `<div class="qr-a"><span>${escH(ans.answer||'—')}</span><span class="${ans.correct?'correct-badge':'wrong-badge'}">${ans.correct?'CORRECT':'WRONG'}</span></div>`
+          : `<div class="no-answer">Not answered yet</div>`}
+      </div>`;
+    });
+    html+=`</div>`;
+  }
   html+=`</div><div class="sd-section"><h4 style="color:${colors[st]}">✏️ Reflections</h4>`;
   RefLabels[st].forEach((q,i)=>{
     const ans=(refs[i]||'').trim();
@@ -523,7 +529,8 @@ function exportCSV(){
     const quizScore=(stage)=>{
       const q=st(stage).quiz||{};
       const correct=Object.values(q).filter(a=>a.correct).length;
-      return correct+'/'+Object.keys(q).length;
+      const answered=Object.keys(q).length;
+      return correct+' correct / '+answered+' of 50';
     };
     const ref=(stage,i)=>(st(stage).reflections||[])[i]||'';
     const ts=s.lastSeen?.toDate?s.lastSeen.toDate().toLocaleString():(s.lastSeen||'');
@@ -560,5 +567,19 @@ async function manualRefresh(){
 /* ══ UTIL ══ */
 function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
+
+<!-- FOOTER -->
+<footer style="background:#1e1e3f;color:#a8b4d8;text-align:center;padding:1.4rem 1rem;font-family:'Nunito',sans-serif;font-size:.82rem;font-weight:600;line-height:1.8;border-top:3px solid #2d2d5e;margin-top:2rem">
+  <div style="margin-bottom:.3rem">
+    <span style="font-size:1rem">🚀</span>
+    <strong style="color:#fff;font-size:.88rem"> CodeKids Learning Platform</strong>
+  </div>
+  <div>Designed &amp; Developed by <strong style="color:#f97316">Mr. Randall A. Moore</strong></div>
+  <div style="margin-top:.35rem;color:#6b7db3;font-size:.75rem">
+    &copy; <span id="footer-year"></span> Mr. Randall A. Moore. All rights reserved.
+    Unauthorised reproduction or distribution of this platform is strictly prohibited.
+  </div>
+  <script>document.getElementById('footer-year').textContent=new Date().getFullYear();</script>
+</footer>
 </body>
 </html>
